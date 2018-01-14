@@ -122,4 +122,9 @@ public class HiveGroupJob extends  AbstractJob{
 			context.write(NullWritable.get(),struct);
 		}
 	}
+
+
+	public static void main(String[] args) {
+
+	}
 }
