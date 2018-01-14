@@ -56,12 +56,10 @@ public class HBasePreRegionUtil {
 					newList.add(s + str);
 				}
 			}
-		}else{
-			result.addAll(Arrays.asList(subArr));
-		}
-		if(CollectionUtils.isNotEmpty(newList)){
 			result.clear();
 			result.addAll(newList);
+		}else{
+			result.addAll(Arrays.asList(subArr));
 		}
 		columnIndex++;
 		cartesian(arr,result,columnIndex);
