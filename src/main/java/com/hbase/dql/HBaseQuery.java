@@ -5,6 +5,7 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.PageFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
@@ -115,14 +116,48 @@ public class HBaseQuery {
 		return null;
 	}
 
+	public static Result scan(String tableName,int pageSize) {
+		Connection connection = null;
+		try {
+			Scan scan = new Scan();
+			PageFilter pageFilter = new PageFilter(pageSize);
+
+
+			scan.setFilter(pageFilter);
+			byte[] startRow = null;
+			if(null != startRow) scan.setStartRow(startRow);
+			connection = HBaseConnectionUtil.getConnection();
+			Table table = connection.getTable(TableName.valueOf(tableName));
+			ResultScanner scanner = table.getScanner(scan);
+			Iterator<Result> iterator = scanner.iterator();
+			int firstRow = 0;
+			while (iterator.hasNext()) {
+				if(0 == firstRow)continue;
+				firstRow ++;
+				Result result = iterator.next();
+				System.out.println(result.toString());
+				startRow = result.getRow();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			HBaseConnectionUtil.close(connection);
+		}
+		return null;
+	}
+
 	public static void main(String[] args) {
 		//delete("t1","row1","f3","name");
-		put("t1", "row2", "f3", "中文列", "中文啦");
-		put("t1", "row3", "f3", "中文列", "中文啦");
-		put("t1", "row4", "f3", "中文列", "中文啦");
-		put("t1", "row5", "f3", "中文列", "中文啦");
+		//put("t1", "row2", "f3", "中文列", "中文啦");
+//		put("t1", "row3", "f3", "中文列", "中文啦");
+//		put("t1", "row4", "f3", "中文列", "中文啦");
+//		put("t1", "row5", "f3", "中文列", "中文啦");
 		//Result s = get("t1", "row1", "f3", "中文列");
 		//System.out.println(s);
 		//delete("t1","row1","f3","ff");
+
+
+
+
 	}
 }

@@ -1,30 +1,35 @@
 package com.hbase.util;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class HBasePreRegionUtil {
 
-	public static final String ROWKEY_DESIGN_1 = "1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,J,L,M,N,O,Q,T,U,V,W,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
-	public static final String ROWKEY_DESIGN_2 = "0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,J,L,M,N,P,R,S,T,U,V,W,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
-	public static final String ROWKEY_DESIGN_3 = "0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,K,L,N,P,Q,R,S,V,W,Y,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,x,y,z";
-	public static final String ROWKEY_DESIGN_4 = "0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,H,I,J,L,M,N,O,P,R,S,T,U,V,W,X,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
-	public static final String ROWKEY_DESIGN_5 = "0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,t,u,v,w,x,y,z";
+	public static final String ROWKEY_DESIGN_1 = "1,2,3,4,5,6,7,8,9,a,b,c,d,e,f";
+	public static final String ROWKEY_DESIGN_2 = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f";
+	public static final String ROWKEY_DESIGN_3 = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f";
+	public static final String ROWKEY_DESIGN_4 = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f";
+	//public static final String ROWKEY_DESIGN_5 = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f";
 
-	public static List<String> getRegionRowKeys(){
+	public static byte[][] getRegionRowKeys(){
 
 		String[] key1 = ROWKEY_DESIGN_1.split(",");
 		String[] key2 = ROWKEY_DESIGN_2.split(",");
 		String[] key3 = ROWKEY_DESIGN_3.split(",");
 		String[] key4 = ROWKEY_DESIGN_4.split(",");
-		String[] key5 = ROWKEY_DESIGN_5.split(",");
-		String[][] arr = new String[][]{key1,key2,key3,key4,key5};
+		String[][] arr = new String[][]{key1,key2,key3,key4};
 
-		return cartesian(arr);
+		List<String> cartesian = cartesian(arr);
+
+		byte[][] bytes = new byte[cartesian.size()][];
+
+		for (int i = 0; i < cartesian.size(); i++) {
+			bytes[i] = Bytes.toBytes(cartesian.get(i));
+		}
+		return bytes;
 	}
 
 	/**

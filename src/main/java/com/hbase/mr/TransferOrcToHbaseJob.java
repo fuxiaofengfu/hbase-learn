@@ -1,5 +1,6 @@
-package com.hbase.importdata.mr;
+package com.hbase.mr;
 
+import com.hbase.ddl.HBaseDDL;
 import com.hbase.util.HBaseConnectionUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -10,7 +11,9 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
+import org.apache.hadoop.hbase.mapreduce.LoadIncrementalHFiles;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.util.RegionSplitter;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
@@ -22,13 +25,17 @@ import org.apache.orc.mapred.OrcStruct;
 import org.apache.orc.mapreduce.OrcInputFormat;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 
-public class TransferJob extends AbstractJob {
+public class TransferOrcToHbaseJob extends AbstractJob {
 
-	private static final String TABLE_NAME = "table.name";
-	private static final String INPUT_PATH = "input.path";
-	private static final String OUTPUT_PATH = "output.path";
+	private Configuration configuration = null;
+
+	public Configuration getConfiguration() {
+		return configuration;
+	}
+	public void setConfiguration(Configuration configuration) {
+		this.configuration = configuration;
+	}
 
 	@Override
 	public Job getJob(String[] args) {
@@ -39,17 +46,19 @@ public class TransferJob extends AbstractJob {
 		try {
 			Configuration configuration = HBaseConfiguration.create(getConf());
 			super.setConf(configuration);
+			setConfiguration(configuration);
 			//get the args w/o generic hadoop args
 			connection = ConnectionFactory.createConnection(configuration);
 			admin = connection.getAdmin();
 			TableName tableName = TableName.valueOf(configuration.get(TABLE_NAME));
 			if (!admin.tableExists(tableName)) {
-				throw new RuntimeException(MessageFormat.format("表{0}不存在", configuration.get(TABLE_NAME)));
+				//throw new RuntimeException(MessageFormat.format("表{0}不存在", configuration.get(TABLE_NAME)));
+				HBaseDDL.createTable(tableName.getNameAsString(),"f1");
 			}
 			HTable table = (HTable) connection.getTable(tableName);
 			job = Job.getInstance(configuration, getJobName());
 
-			job.setJarByClass(TransferJob.class);
+			job.setJarByClass(TransferOrcToHbaseJob.class);
 			job.setMapperClass(TransferMapper.class);
 			job.setMapOutputKeyClass(ImmutableBytesWritable.class);
 			job.setMapOutputValueClass(Put.class);
@@ -84,7 +93,6 @@ public class TransferJob extends AbstractJob {
 
 		ImmutableBytesWritable immutableBytesWritable = new ImmutableBytesWritable();
 		byte[] family = Bytes.toBytes("f1");
-
 		byte[] pkgname = Bytes.toBytes("pkgname");
 		byte[] uptime = Bytes.toBytes("uptime");
 		byte[] type = Bytes.toBytes("type");
@@ -129,9 +137,17 @@ public class TransferJob extends AbstractJob {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Throwable {
 		try {
-			System.exit(ToolRunner.run(new TransferJob(), args));
+			TransferOrcToHbaseJob transferOrcToHbaseJob = new TransferOrcToHbaseJob();
+			int run = ToolRunner.run(transferOrcToHbaseJob, args);
+			if( 0 == run){
+				Configuration configuration = transferOrcToHbaseJob.getConfiguration();
+				// 预分region
+				RegionSplitter.main(new String[]{configuration.get(TABLE_NAME),"com.hbase.importdata.SplitRegions","-c","2","-f","f1"});
+				// load数据 import org.apache.hadoop.hbase.mapreduce.Driver.main();
+				LoadIncrementalHFiles.main(new String[]{configuration.get(OUTPUT_PATH),configuration.get(TABLE_NAME)});
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

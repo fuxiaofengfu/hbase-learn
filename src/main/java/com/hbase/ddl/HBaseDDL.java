@@ -6,6 +6,7 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.io.compress.Compression;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -19,11 +20,11 @@ public class HBaseDDL {
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean createTable(String tableName,String... columnFamilies) throws Exception {
+	public static boolean createTable(String tableName,String... columnFamilies) {
 
 		if(null == columnFamilies || columnFamilies.length <=0){
 			String message = "表{0}的columnFamily为空";
-			throw new Exception(MessageFormat.format(message,tableName));
+			throw new RuntimeException(MessageFormat.format(message,tableName));
 		}
 
 		Connection connection = null;
@@ -34,7 +35,9 @@ public class HBaseDDL {
 			TableName tn = TableName.valueOf(tableName);
 			HTableDescriptor hTableDescriptor = new HTableDescriptor(tn);
 			for (String f:columnFamilies) {
-				hTableDescriptor.addFamily(new HColumnDescriptor(f));
+				HColumnDescriptor hColumnDescriptor = new HColumnDescriptor(f);
+				hColumnDescriptor.setCompressionType(Compression.Algorithm.SNAPPY);
+				hTableDescriptor.addFamily(hColumnDescriptor);
 			}
 			admin.createTable(hTableDescriptor);
 			return true;
@@ -67,4 +70,7 @@ public class HBaseDDL {
 		return false;
 	}
 
+	public static void main(String[] args) {
+
+	}
 }

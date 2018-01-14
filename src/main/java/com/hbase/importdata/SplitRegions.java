@@ -1,8 +1,11 @@
 package com.hbase.importdata;
 
+import com.hbase.util.HBasePreRegionUtil;
 import org.apache.hadoop.hbase.util.RegionSplitter;
-import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 
+/**
+ * 预分region
+ */
 public class SplitRegions implements RegionSplitter.SplitAlgorithm {
 	/**
 	 * Split a pre-existing region into 2 regions.
@@ -28,10 +31,7 @@ public class SplitRegions implements RegionSplitter.SplitAlgorithm {
 	@Override
 	public byte[][] split(int numRegions) {
 
-		//GenericUDF
-
-
-		return new byte[0][];
+		return HBasePreRegionUtil.getRegionRowKeys();
 	}
 
 	/**
