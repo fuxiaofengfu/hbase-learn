@@ -1,8 +1,11 @@
 package com.hbase.mr;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 public abstract class AbstractJob extends Configured implements Tool{
 
@@ -22,5 +25,13 @@ public abstract class AbstractJob extends Configured implements Tool{
 
 	public abstract String getJobName();
 
-
+	/**
+	 * 处理classpath路径
+	 * @param config
+	 */
+	protected void handleClasspath(Configuration config){
+		String[] classpathArray = config.getStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH, YarnConfiguration.DEFAULT_YARN_APPLICATION_CLASSPATH);
+		String cp = "$PWD/*:" +  StringUtils.join(classpathArray, ":");
+		config.set(YarnConfiguration.YARN_APPLICATION_CLASSPATH, cp);
+	}
 }

@@ -17,6 +17,7 @@ import org.apache.hadoop.hbase.util.RegionSplitter;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -45,6 +46,8 @@ public class TransferOrcToHbaseJob extends AbstractJob {
 		Admin admin = null;
 		try {
 			Configuration configuration = HBaseConfiguration.create(getConf());
+			configuration.set(MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,"true");
+			configuration.set("mapreduce.task.classpath.user.precedence","true");
 			super.setConf(configuration);
 			setConfiguration(configuration);
 			//get the args w/o generic hadoop args
