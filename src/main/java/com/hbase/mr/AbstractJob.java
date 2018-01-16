@@ -21,7 +21,7 @@ public abstract class AbstractJob extends Configured implements Tool{
 		return b ? 0 : 1;
 	}
 
-	public abstract Job getJob(String[] args);
+	public abstract Job getJob(String[] args) throws Exception;
 
 	public abstract String getJobName();
 
