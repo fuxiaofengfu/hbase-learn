@@ -24,12 +24,13 @@ public class HBasePreRegionUtil {
 		List<String> cartesian = cartesian(arr);
 
 		byte[][] bytes = new byte[cartesian.size()*2][];
-
-		for (int i = 0; i < cartesian.size(); i++) {
-			String rowstartkey = cartesian.get(i);
+		int listIndex = 0;
+		for (int i = 0; i < cartesian.size()*2 ; i+=2) {
+			String rowstartkey = cartesian.get(listIndex);
 			String rowendkey = rowstartkey + "8";
 			bytes[i] = Bytes.toBytes(rowstartkey);
 			bytes[i+1] = Bytes.toBytes(rowendkey);
+			listIndex ++;
 		}
 		return bytes;
 	}
@@ -91,10 +92,12 @@ public class HBasePreRegionUtil {
 //
 //			handle();
 //		}
-		List<String> cartesian = cartesian(xyz);
-		for (String s : cartesian){
-			System.out.println(s);
-		}
+//		List<String> cartesian = cartesian(xyz);
+//		for (String s : cartesian){
+//			System.out.println(s);
+//		}
+		System.out.println(getRegionRowKeys().length);
+		//RegionSplitter.main(new String[]{"fxf_user_install_split1","com.hbase.importdata.SplitRegions","-c","2","-f","f1"});
 	}
 
 	public static void handle() {
