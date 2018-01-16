@@ -12,22 +12,24 @@ public class HBasePreRegionUtil {
 	public static final String ROWKEY_DESIGN_2 = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f";
 	public static final String ROWKEY_DESIGN_3 = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f";
 	public static final String ROWKEY_DESIGN_4 = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f";
-	//public static final String ROWKEY_DESIGN_5 = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f";
 
 	public static byte[][] getRegionRowKeys(){
 
 		String[] key1 = ROWKEY_DESIGN_1.split(",");
 		String[] key2 = ROWKEY_DESIGN_2.split(",");
 		String[] key3 = ROWKEY_DESIGN_3.split(",");
-		String[] key4 = ROWKEY_DESIGN_4.split(",");
-		String[][] arr = new String[][]{key1,key2,key3,key4};
+		//String[] key4 = ROWKEY_DESIGN_4.split(",");
+		String[][] arr = new String[][]{key1,key2,key3};
 
 		List<String> cartesian = cartesian(arr);
 
-		byte[][] bytes = new byte[cartesian.size()][];
+		byte[][] bytes = new byte[cartesian.size()*2][];
 
 		for (int i = 0; i < cartesian.size(); i++) {
-			bytes[i] = Bytes.toBytes(cartesian.get(i));
+			String rowstartkey = cartesian.get(i);
+			String rowendkey = rowstartkey + "8";
+			bytes[i] = Bytes.toBytes(rowstartkey);
+			bytes[i+1] = Bytes.toBytes(rowendkey);
 		}
 		return bytes;
 	}

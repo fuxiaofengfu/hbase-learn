@@ -11,9 +11,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
-import org.apache.hadoop.hbase.mapreduce.LoadIncrementalHFiles;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.RegionSplitter;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Job;
@@ -47,7 +45,8 @@ public class TransferOrcToHbaseJob extends AbstractJob {
 		try {
 			Configuration configuration = HBaseConfiguration.create(getConf());
 			configuration.set(MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST,"true");
-			configuration.set("mapreduce.task.classpath.user.precedence","true");
+			//handleClasspath(configuration);
+			//configuration.set("mapreduce.task.classpath.user.precedence","true");
 			super.setConf(configuration);
 			setConfiguration(configuration);
 			//get the args w/o generic hadoop args
@@ -144,13 +143,14 @@ public class TransferOrcToHbaseJob extends AbstractJob {
 		try {
 			TransferOrcToHbaseJob transferOrcToHbaseJob = new TransferOrcToHbaseJob();
 			int run = ToolRunner.run(transferOrcToHbaseJob, args);
-			if( 0 == run){
-				Configuration configuration = transferOrcToHbaseJob.getConfiguration();
+			System.exit(run);
+			//if( 0 == run){
+				//Configuration configuration = transferOrcToHbaseJob.getConfiguration();
 				// 预分region
-				RegionSplitter.main(new String[]{configuration.get(TABLE_NAME),"com.hbase.importdata.SplitRegions","-c","2","-f","f1"});
+				//RegionSplitter.main(new String[]{configuration.get(TABLE_NAME),"com.hbase.importdata.SplitRegions","-c","2","-f","f1"});
 				// load数据 import org.apache.hadoop.hbase.mapreduce.Driver.main();
-				LoadIncrementalHFiles.main(new String[]{configuration.get(OUTPUT_PATH),configuration.get(TABLE_NAME)});
-			}
+				//LoadIncrementalHFiles.main(new String[]{configuration.get(OUTPUT_PATH),configuration.get(TABLE_NAME)});
+			//}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

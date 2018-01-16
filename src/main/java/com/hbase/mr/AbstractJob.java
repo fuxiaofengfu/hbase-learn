@@ -26,12 +26,16 @@ public abstract class AbstractJob extends Configured implements Tool{
 	public abstract String getJobName();
 
 	/**
-	 * 处理classpath路径
+	 * 处理classpath路径 -Dlib_path
 	 * @param config
 	 */
 	protected void handleClasspath(Configuration config){
-		String[] classpathArray = config.getStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH, YarnConfiguration.DEFAULT_YARN_APPLICATION_CLASSPATH);
-		String cp = "$PWD/*:" +  StringUtils.join(classpathArray, ":");
-		config.set(YarnConfiguration.YARN_APPLICATION_CLASSPATH, cp);
+
+		String tmpjars = config.get("tmpjars");
+		if(StringUtils.isNotEmpty(tmpjars)) {
+			String[] classpathArray = config.getStrings(YarnConfiguration.YARN_APPLICATION_CLASSPATH, YarnConfiguration.DEFAULT_YARN_APPLICATION_CLASSPATH);
+			String cp = "$PWD/*:" + StringUtils.join(classpathArray, ":");
+			config.set(YarnConfiguration.YARN_APPLICATION_CLASSPATH, cp);
+		}
 	}
 }
