@@ -11,7 +11,6 @@ public class MyWritable extends BinaryComparable
 		implements WritableComparable<BinaryComparable> {
 
 
-
 	/**
 	 * Return n st bytes 0..n-1 from {#getBytes()} are valid.
 	 */
